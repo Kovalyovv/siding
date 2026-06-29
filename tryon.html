@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Примерка сайдинга на фото — ворота и калитка</title>
+<style>
+  :root{--bg:#f3f3f1;--panel:#fafafa;--line:#dcdcd8;--ink:#2b2b2b;--mut:#76746f;--accent:#54514b}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.45 -apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel);
+         display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  h1{margin:0;font-size:16px;font-weight:600}
+  a.back{color:var(--mut);text-decoration:none;font-size:13px;border:1px solid var(--line);padding:6px 12px;border-radius:6px;background:#fff}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px}
+  .stage{position:relative;background:#e9e9e6;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+         user-select:none;touch-action:none}
+  .stage img{display:block;width:100%;height:auto}
+  .empty{padding:60px 20px;text-align:center;color:var(--mut)}
+  .empty b{color:var(--ink)}
+  .warp{position:absolute;top:0;left:0;transform-origin:0 0;pointer-events:none}
+  .warp svg{width:100%;height:100%;display:block}
+  .handle{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;
+          background:#fff;border:2px solid var(--accent);cursor:grab;z-index:5;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+  .handle:active{cursor:grabbing}
+  .panel{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .panel h3{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);margin:0 0 9px}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .seg{display:flex;flex-wrap:wrap;gap:6px}
+  .opt{padding:7px 12px;border:1px solid var(--line);border-radius:18px;background:#fff;cursor:pointer;font-size:13px}
+  .opt.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .swatches{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .sw{width:28px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.2);cursor:pointer}
+  .sw.on{outline:2px solid var(--ink);outline-offset:2px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .file{display:inline-block;padding:8px 14px;border:1px solid var(--accent);background:var(--accent);color:#fff;
+        border-radius:7px;cursor:pointer;font-size:13.5px;font-weight:600}
+  .slots .opt{display:flex;align-items:center;gap:6px}
+  .hint{color:var(--mut);font-size:12.5px;margin-top:10px;line-height:1.5}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  label.lbl{font-size:12px;color:var(--mut)}
+  input[type=range]{accent-color:var(--accent);vertical-align:middle}
+  .ghost{background:#fff;border:1px solid var(--line);color:var(--ink);padding:7px 12px;border-radius:7px;cursor:pointer;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Примерка сайдинга на вашем фото</h1>
+  <a class="back" href="index.html">← к каталогу</a>
+</header>
+
+<div class="wrap">
+  <div class="toolbar">
+    <label class="file">Загрузить фото<input id="file" type="file" accept="image/*" hidden></label>
+    <button class="ghost" id="toggleHandles">Показать/скрыть метки углов</button>
+    <span class="lbl" id="status"></span>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="empty" id="empty">
+      <b>Загрузите фото ворот</b><br>фронтальный снимок, где видно ворота и калитку.<br>
+      Затем перетащите угловые метки каждой накладки на свои края.
+    </div>
+  </div>
+
+  <div class="panel slots">
+    <h3>Что примеряем (вкл/выкл и перетащить углы)</h3>
+    <div class="seg" id="slots"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3>Тип профиля</h3><div class="seg" id="types"></div>
+      <h3 style="margin-top:12px">Поверхность</h3><div class="seg" id="finishes"></div>
+      <h3 style="margin-top:12px">Ориентация досок</h3><div class="seg" id="orients"></div>
+    </div>
+    <div class="panel">
+      <h3>Столбы 80×80 мм (металл)</h3>
+      <div class="row"><label class="lbl">Цвет столбов:</label><div class="seg" id="postcolors"></div></div>
+      <div class="row" style="margin-top:8px"><label class="lbl">Видны столбы:</label>
+        <div class="seg" id="postsToggle"></div></div>
+      <h3 style="margin-top:14px">Цвет сайдинга</h3>
+      <div class="swatches" id="colors"></div>
+    </div>
+  </div>
+
+  <div class="hint">
+    Накладка приблизительная: тяните 4 угловые метки каждой створки/калитки и столбов,
+    чтобы они совпали с перспективой снимка. Цвет, тип и фактура берутся из каталога.
+    Чтобы сохранить результат — сделайте скриншот (⌘⇧4 на Mac).
+  </div>
+</div>
+
+<script src="gate.js?v=3"></script>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+
+const ST = {type:'brus', orient:'h', finish:'мат', color:'Шоколад', hex:'#45322e',
+            postColor:'#3a3d40'};
+const TYPES=[{id:'brus',n:'ЭкоБрус',o:'h'},{id:'log',n:'Блок-хаус',o:'h'},
+             {id:'ship',n:'Корабельная доска',o:'h'},{id:'vert',n:'Вертикаль',o:'v'}];
+const POSTCOLORS=[['#3a3d40','графит'],['#1c1c1c','чёрный'],['#45322e','шоколад'],
+                  ['#6f4a2f','коричневый'],['#8d8f90','серый']];
+
+// слоты-накладки: створки/калитка (сайдинг) и столбы (металл).
+// углы заданы долями (0..1) кадра; пользователь подгоняет под своё фото.
+const SLOTS = {
+  gateL:{label:'Левая створка', kind:'siding', w:300,h:430, on:true,
+         c:[[.50,.34],[.70,.34],[.50,.86],[.70,.86]]},
+  gateR:{label:'Правая створка', kind:'siding', w:300,h:430, on:true,
+         c:[[.70,.34],[.90,.34],[.70,.86],[.90,.86]]},
+  wicket:{label:'Калитка', kind:'siding', w:220,h:440, on:false,
+         c:[[.30,.36],[.45,.36],[.30,.84],[.45,.84]]},
+  postL:{label:'Столб левый', kind:'post', w:80,h:460, on:true,
+         c:[[.475,.30],[.505,.30],[.475,.88],[.505,.88]]},
+  postM:{label:'Столб средний', kind:'post', w:80,h:460, on:true,
+         c:[[.685,.30],[.715,.30],[.685,.88],[.715,.88]]},
+  postR:{label:'Столб правый', kind:'post', w:80,h:460, on:true,
+         c:[[.895,.30],[.925,.30],[.895,.88],[.925,.88]]},
+};
+let SHOW_HANDLES=true, IMG_READY=false, COLORS=[];
+
+// ---------- палитра ----------
+fetch('data.json').then(r=>r.json()).then(d=>{COLORS=d.meta.colors;buildUI();}).catch(()=>{COLORS=[{name:ST.color,hex:ST.hex}];buildUI();});
+
+// автозагрузка gate.jpg, если положен в папку
+(function(){const im=new Image();im.onload=()=>setPhoto(im.src);im.onerror=()=>{};im.src='gate.jpg';})();
+
+$('#file').addEventListener('change',e=>{const f=e.target.files[0];if(f)setPhoto(URL.createObjectURL(f));});
+$('#toggleHandles').addEventListener('click',()=>{SHOW_HANDLES=!SHOW_HANDLES;renderOverlays();});
+
+function setPhoto(src){
+  const stage=$('#stage');
+  let img=stage.querySelector('img');
+  if(!img){img=document.createElement('img');stage.prepend(img);}
+  img.onload=()=>{IMG_READY=true;$('#empty').style.display='none';$('#status').textContent='Фото загружено · '+img.naturalWidth+'×'+img.naturalHeight;renderOverlays();};
+  img.src=src;
+}
+
+// ---------- интерфейс ----------
+function buildUI(){
+  fill('#types',TYPES.map(t=>t.n),(i)=>{const t=TYPES[i];ST.type=t.id;ST.orient=t.o;syncOrient();renderOverlays();},()=>TYPES.findIndex(t=>t.id===ST.type));
+  fill('#finishes',['мат','глянец','дерево'],(i,v)=>{ST.finish=v;renderOverlays();},()=>['мат','глянец','дерево'].indexOf(ST.finish));
+  fill('#orients',['горизонтально','вертикально'],(i)=>{ST.orient=i?'v':'h';renderOverlays();},()=>ST.orient==='v'?1:0);
+  // столбы — цвет
+  const pc=$('#postcolors');pc.innerHTML='';
+  POSTCOLORS.forEach(([hex,n])=>{const e=el('div','opt',n);e.onclick=()=>{ST.postColor=hex;pcSync();renderOverlays();};e.dataset.h=hex;pc.append(e)});
+  pcSync();
+  // слоты
+  const sb=$('#slots');sb.innerHTML='';
+  Object.entries(SLOTS).filter(([k,s])=>s.kind!=='post').forEach(([k,s])=>slotChip(sb,k,s));
+  const pt=$('#postsToggle');pt.innerHTML='';
+  Object.entries(SLOTS).filter(([k,s])=>s.kind==='post').forEach(([k,s])=>slotChip(pt,k,s));
+  // цвета
+  const c=$('#colors');c.innerHTML='';
+  COLORS.forEach(col=>{const e=el('div','sw');e.style.background=col.hex;e.title=col.name;
+    e.onclick=()=>{ST.color=col.name;ST.hex=col.hex;cSync();renderOverlays();};e.dataset.c=col.name;c.append(e)});
+  cSync();syncOrient();
+  renderOverlays();
+}
+function slotChip(box,k,s){
+  const e=el('div','opt'+(s.on?' on':''),s.label);
+  e.onclick=()=>{s.on=!s.on;e.classList.toggle('on',s.on);renderOverlays();};
+  box.append(e);
+}
+function fill(sel,items,onclick,active){
+  const box=$(sel);box.innerHTML='';
+  items.forEach((v,i)=>{const e=el('div','opt',v);e.onclick=()=>{onclick(i,v);[...box.children].forEach((c,j)=>c.classList.toggle('on',j===active()));};box.append(e)});
+  [...box.children].forEach((c,j)=>c.classList.toggle('on',j===active()));
+}
+function syncOrient(){[...$('#orients').children].forEach((c,j)=>c.classList.toggle('on',j===(ST.orient==='v'?1:0)));[...$('#types').children].forEach((c,j)=>c.classList.toggle('on',j===TYPES.findIndex(t=>t.id===ST.type)));}
+function pcSync(){$$('#postcolors .opt').forEach(e=>e.classList.toggle('on',e.dataset.h===ST.postColor));}
+function cSync(){$$('#colors .sw').forEach(e=>e.classList.toggle('on',e.dataset.c===ST.color));}
+
+// ---------- гомография (matrix3d) ----------
+function adj(m){return[m[4]*m[8]-m[5]*m[7],m[2]*m[7]-m[1]*m[8],m[1]*m[5]-m[2]*m[4],
+  m[5]*m[6]-m[3]*m[8],m[0]*m[8]-m[2]*m[6],m[2]*m[3]-m[0]*m[5],
+  m[3]*m[7]-m[4]*m[6],m[1]*m[6]-m[0]*m[7],m[0]*m[4]-m[1]*m[3]];}
+function mm(a,b){const c=[];for(let i=0;i<3;i++)for(let j=0;j<3;j++){let s=0;for(let k=0;k<3;k++)s+=a[3*i+k]*b[3*k+j];c[3*i+j]=s;}return c;}
+function mv(m,v){return[m[0]*v[0]+m[1]*v[1]+m[2]*v[2],m[3]*v[0]+m[4]*v[1]+m[5]*v[2],m[6]*v[0]+m[7]*v[1]+m[8]*v[2]];}
+function b2p(x1,y1,x2,y2,x3,y3,x4,y4){const m=[x1,x2,x3,y1,y2,y3,1,1,1];const v=mv(adj(m),[x4,y4,1]);return mm(m,[v[0],0,0,0,v[1],0,0,0,v[2]]);}
+function homography(w,h,d){ // d=[[x,y]*4] tl,tr,bl,br
+  const s=b2p(0,0,w,0,0,h,w,h);
+  const t=b2p(d[0][0],d[0][1],d[1][0],d[1][1],d[2][0],d[2][1],d[3][0],d[3][1]);
+  let p=mm(t,adj(s));for(let i=0;i<9;i++)p[i]/=p[8];
+  return 'matrix3d('+[p[0],p[3],0,p[6], p[1],p[4],0,p[7], 0,0,1,0, p[2],p[5],0,p[8]].join(',')+')';
+}
+
+// ---------- содержимое накладок ----------
+function sidingSVG(w,h){
+  const u='u'+(Math.random()*1e6|0), g='g'+u, gl='l'+u, wf='w'+u, vert=ST.orient==='v';
+  let body=`<rect width="${w}" height="${h}" fill="${ST.hex}"/>`+planks(0,0,w,h,ST.type,ST.orient,g);
+  if(ST.finish==='глянец') body+=`<rect width="${w}" height="${h}" fill="url(#${gl})"/>`;
+  if(ST.finish==='дерево') body+=`<rect width="${w}" height="${h}" fill="#38281c" opacity=".26" filter="url(#${wf})"/>`;
+  body+=`<rect width="${w}" height="${h}" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="2"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs>
+    ${lin(g,PROFILE[ST.type],vert)}
+    <linearGradient id="${gl}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".42" stop-color="#fff" stop-opacity=".20"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".03"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <filter id="${wf}"><feTurbulence type="fractalNoise" baseFrequency="${vert?'0.5 0.014':'0.014 0.5'}" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.3 -0.35"/></filter>
+  </defs>${body}</svg>`;
+}
+function postSVG(w,h){
+  const u='p'+(Math.random()*1e6|0);
+  // квадратная труба 80x80: широкая лицевая грань + узкая боковая (справа) + блик
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs>
+    <linearGradient id="f${u}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="${ST.postColor}"/><stop offset=".28" stop-color="#ffffff" stop-opacity=".18"/>
+      <stop offset=".5" stop-color="${ST.postColor}"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></linearGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="${ST.postColor}"/>
+  <rect width="${w}" height="${h}" fill="url(#f${u})"/>
+  <rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="2"/>
+  <rect x="0" y="0" width="${w}" height="6" fill="#000" opacity=".25"/></svg>`;
+}
+
+// ---------- отрисовка накладок ----------
+function renderOverlays(){
+  const stage=$('#stage'); const img=stage.querySelector('img');
+  stage.querySelectorAll('.warp,.handle').forEach(e=>e.remove());
+  if(!IMG_READY||!img) return;
+  const W=img.clientWidth, H=img.clientHeight;
+  // столбы рисуем первыми (за створками), сайдинг — поверх
+  const order=Object.entries(SLOTS).sort((a,b)=> (a[1].kind==='post'?0:1)-(b[1].kind==='post'?0:1));
+  order.forEach(([k,s])=>{
+    if(!s.on) return;
+    const dst=s.c.map(([fx,fy])=>[fx*W,fy*H]);
+    const div=el('div','warp'); div.style.width=s.w+'px'; div.style.height=s.h+'px';
+    div.style.transform=homography(s.w,s.h,dst);
+    div.innerHTML = s.kind==='post'?postSVG(s.w,s.h):sidingSVG(s.w,s.h);
+    stage.appendChild(div);
+    if(SHOW_HANDLES) s.c.forEach((pt,idx)=>addHandle(stage,s,idx,W,H));
+  });
+}
+function addHandle(stage,s,idx,W,H){
+  const h=el('div','handle');
+  h.style.left=(s.c[idx][0]*W)+'px'; h.style.top=(s.c[idx][1]*H)+'px';
+  const onMove=ev=>{
+    const r=stage.getBoundingClientRect();
+    const cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left;
+    const cy=(ev.touches?ev.touches[0].clientY:ev.clientY)-r.top;
+    s.c[idx]=[Math.max(0,Math.min(1,cx/r.width)), Math.max(0,Math.min(1,cy/r.height))];
+    renderOverlays();
+  };
+  const up=()=>{document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',up);};
+  h.addEventListener('pointerdown',ev=>{ev.preventDefault();document.addEventListener('pointermove',onMove);document.addEventListener('pointerup',up);});
+  stage.appendChild(h);
+}
+window.addEventListener('resize',()=>renderOverlays());
+</script>
+</body>
+</html>
