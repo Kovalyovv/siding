@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Примерочная ворот — металлический сайдинг</title>
+<style>
+  :root{--bg:#f3f3f1;--panel:#fafafa;--line:#dcdcd8;--ink:#2b2b2b;--mut:#76746f;--accent:#54514b}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.45 -apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel);
+         display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  h1{margin:0;font-size:16px;font-weight:600}
+  a.back{color:var(--mut);text-decoration:none;font-size:13px;border:1px solid var(--line);
+         padding:6px 12px;border-radius:6px;background:#fff}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px}
+  .stage{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .stage svg{display:block;width:100%;height:auto}
+  .panel{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .panel h3{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);margin:0 0 9px}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .seg{display:flex;flex-wrap:wrap;gap:6px}
+  .opt{padding:7px 12px;border:1px solid var(--line);border-radius:18px;background:#fff;cursor:pointer;font-size:13px}
+  .opt.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .swatches{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .sw{width:30px;height:30px;border-radius:6px;border:1px solid rgba(0,0,0,.2);cursor:pointer;position:relative}
+  .sw.on{outline:2px solid var(--ink);outline-offset:2px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid3{grid-template-columns:1fr}}
+  .now{display:flex;align-items:center;gap:10px;margin-top:10px;color:var(--mut);font-size:13px}
+  .now .dot{width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,.2)}
+  .presets{display:flex;flex-wrap:wrap;gap:8px}
+  .preset{display:flex;align-items:center;gap:7px;padding:6px 10px 6px 6px;border:1px solid var(--line);
+          border-radius:20px;background:#fff;cursor:pointer;font-size:12.5px}
+  .preset .pc{width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,.2)}
+  .hint{color:var(--mut);font-size:12.5px;margin-top:10px;line-height:1.5}
+  label.lbl{font-size:12px;color:var(--mut);margin-right:4px}
+  input[type=range]{accent-color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Примерочная ворот · металлический сайдинг</h1>
+  <a class="back" href="index.html">← к каталогу</a>
+</header>
+
+<div class="wrap">
+  <div class="stage" id="stage"></div>
+
+  <div class="now" id="now"></div>
+
+  <div class="panel">
+    <h3>Готовые сочетания под кирпич дома</h3>
+    <div class="presets" id="presets"></div>
+  </div>
+
+  <div class="grid3">
+    <div class="panel">
+      <h3>Тип профиля</h3>
+      <div class="seg" id="types"></div>
+    </div>
+    <div class="panel">
+      <h3>Поверхность</h3>
+      <div class="seg" id="finishes"></div>
+      <div class="row" style="margin-top:10px">
+        <label class="lbl">Кирпич столбов:</label>
+        <div class="seg" id="bricks"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Ориентация досок</h3>
+      <div class="seg" id="orients"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Цвет сайдинга</h3>
+    <div class="swatches" id="colors"></div>
+  </div>
+
+  <div class="hint">
+    Это процедурная визуализация: профиль досок, блик и фактура рисуются программно
+    и перекрашиваются в выбранный цвет — точный оттенок и рельеф у реального металла
+    может слегка отличаться. Цель — оценить, как тип и цвет смотрятся целыми воротами
+    рядом с кирпичом вашего дома.
+  </div>
+</div>
+
+<script src="gate.js?v=3"></script>
+<script>
+// ---------- состояние ----------
+const STATE = {type:'brus', orient:'h', finish:'мат', color:'Шоколад', hex:'#45322e', brick:'beige'};
+
+const TYPES = [
+  {id:'brus', name:'ЭкоБрус', orient:'h'},
+  {id:'log',  name:'Блок-хаус', orient:'h'},
+  {id:'ship', name:'Корабельная доска', orient:'h'},
+  {id:'vert', name:'Вертикаль', orient:'v'},
+];
+const FINISHES = ['мат','глянец','дерево'];
+const BRICKS = [
+  {id:'beige', name:'бежевый'},
+  {id:'terra', name:'терракота'},
+  {id:'sand',  name:'песочный'},
+];
+const PRESETS = [
+  {name:'Шоколад · мат',        type:'brus', finish:'мат',    color:'Шоколад',          hex:'#45322e'},
+  {name:'Тёмно-коричневый',     type:'log',  finish:'мат',    color:'Темно-коричневый', hex:'#3a2a23'},
+  {name:'Античный дуб · дерево', type:'ship', finish:'дерево', color:'Античный дуб',     hex:'#6e4a2f'},
+  {name:'Мокрый асфальт',       type:'vert', finish:'мат',    color:'Мокрый асфальт',   hex:'#474b4f'},
+  {name:'Золотой дуб · дерево', type:'brus', finish:'дерево', color:'Золотой дуб',      hex:'#b07a3c'},
+];
+
+let COLORS = [];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+// ---------- загрузка палитры ----------
+fetch('data.json').then(r=>r.json()).then(d=>{
+  COLORS = d.meta.colors;
+  buildControls();
+  render();
+}).catch(()=>{ COLORS=[{name:STATE.color,hex:STATE.hex}]; buildControls(); render(); });
+
+function buildControls(){
+  // типы
+  const t=$('#types'); t.innerHTML='';
+  TYPES.forEach(x=>{const e=el('div','opt',x.name);e.onclick=()=>{STATE.type=x.id;STATE.orient=x.orient;sync();render()};e.dataset.k='type:'+x.id;t.append(e)});
+  // финиш
+  const f=$('#finishes'); f.innerHTML='';
+  FINISHES.forEach(x=>{const e=el('div','opt',x);e.onclick=()=>{STATE.finish=x;sync();render()};e.dataset.k='finish:'+x;f.append(e)});
+  // кирпич
+  const b=$('#bricks'); b.innerHTML='';
+  BRICKS.forEach(x=>{const e=el('div','opt',x.name);e.onclick=()=>{STATE.brick=x.id;sync();render()};e.dataset.k='brick:'+x.id;b.append(e)});
+  // ориентация
+  const o=$('#orients'); o.innerHTML='';
+  [['h','горизонтально'],['v','вертикально']].forEach(([k,n])=>{const e=el('div','opt',n);e.onclick=()=>{STATE.orient=k;sync();render()};e.dataset.k='orient:'+k;o.append(e)});
+  // цвета
+  const c=$('#colors'); c.innerHTML='';
+  COLORS.forEach(col=>{const e=el('div','sw');e.style.background=col.hex;e.title=col.name;
+    e.onclick=()=>{STATE.color=col.name;STATE.hex=col.hex;sync();render()};e.dataset.col=col.name;c.append(e)});
+  // пресеты
+  const p=$('#presets'); p.innerHTML='';
+  PRESETS.forEach(pr=>{const e=el('div','preset');
+    e.innerHTML='<span class="pc" style="background:'+pr.hex+'"></span>'+pr.name;
+    e.onclick=()=>{Object.assign(STATE,{type:pr.type,finish:pr.finish,color:pr.color,hex:pr.hex,orient:TYPES.find(t=>t.id===pr.type).orient});sync();render()};
+    p.append(e)});
+  sync();
+}
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function sync(){
+  $$('#types .opt').forEach(e=>e.classList.toggle('on',e.dataset.k==='type:'+STATE.type));
+  $$('#finishes .opt').forEach(e=>e.classList.toggle('on',e.dataset.k==='finish:'+STATE.finish));
+  $$('#bricks .opt').forEach(e=>e.classList.toggle('on',e.dataset.k==='brick:'+STATE.brick));
+  $$('#orients .opt').forEach(e=>e.classList.toggle('on',e.dataset.k==='orient:'+STATE.orient));
+  $$('#colors .sw').forEach(e=>e.classList.toggle('on',e.dataset.col===STATE.color));
+  $('#now').innerHTML='<span class="dot" style="background:'+STATE.hex+'"></span>'+
+    '<b style="color:#2b2b2b">'+(TYPES.find(t=>t.id===STATE.type).name)+'</b> · '+STATE.color+' · '+STATE.finish;
+}
+
+// ================= ОТРИСОВКА СЦЕНЫ (SVG) =================
+function render(){ $('#stage').innerHTML = scene(STATE); }
+</script>
+</body>
+</html>

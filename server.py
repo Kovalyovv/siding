@@ -135,6 +135,9 @@ class Handler(BaseHTTPRequestHandler):
                 data = f.read()
             ct = "text/html; charset=utf-8" if path.endswith(".html") else \
                  "application/json; charset=utf-8" if path.endswith(".json") else \
+                 "text/javascript; charset=utf-8" if path.endswith(".js") else \
+                 "text/css; charset=utf-8" if path.endswith(".css") else \
+                 "image/svg+xml" if path.endswith(".svg") else \
                  "image/webp" if path.endswith(".webp") else \
                  "image/jpeg" if path.endswith((".jpg", ".jpeg")) else \
                  "image/png" if path.endswith(".png") else \
