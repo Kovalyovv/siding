@@ -91,8 +91,36 @@
   .spectable td:first-child{color:var(--mut);width:46%}
   .desc{font-size:13px;color:#3a3a3a;white-space:pre-line;margin-bottom:12px}
   .loading{color:var(--mut);padding:12px 0}
-  @media(max-width:900px){.layout{flex-direction:column}aside{width:100%;flex:none;position:static;max-height:none}
-    .modal-body{grid-template-columns:1fr}}
+  /* мобильное выезжающее меню фильтров (по умолчанию скрыты управляющие элементы) */
+  .filters-toggle{display:none}
+  .drawer-backdrop{display:none}
+  .drawer-head{display:none}
+  .drawer-apply{display:none}
+  @media(max-width:900px){
+    .layout{flex-direction:column;padding:12px}
+    .toolbar{position:sticky;top:55px;background:var(--bg);z-index:15;padding:6px 0}
+    .filters-toggle{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;
+      border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;
+      font-size:14px;font-weight:600}
+    /* aside превращается в drawer слева */
+    aside{position:fixed;top:0;left:0;height:100dvh;width:86%;max-width:340px;flex:none;
+      max-height:none;border:none;border-right:1px solid var(--line);border-radius:0;
+      transform:translateX(-100%);transition:transform .26s ease;z-index:60;
+      box-shadow:2px 0 18px rgba(0,0,0,.22);overflow:auto;padding-bottom:88px}
+    aside.open{transform:translateX(0)}
+    .drawer-backdrop{position:fixed;inset:0;background:rgba(20,20,20,.45);z-index:55}
+    .drawer-backdrop.on{display:block}
+    .drawer-head{display:flex;justify-content:space-between;align-items:center;
+      position:sticky;top:0;background:var(--panel);margin:-14px -14px 8px;padding:12px 14px;
+      border-bottom:1px solid var(--line);z-index:2}
+    .drawer-head strong{font-size:15px}
+    .drawer-apply{display:block;position:sticky;bottom:0;width:100%;margin-top:14px;padding:13px;
+      background:var(--accent);color:#fff;border:none;border-radius:7px;cursor:pointer;
+      font-size:15px;font-weight:600;box-shadow:0 -6px 14px rgba(250,250,250,.9)}
+    .swatches{grid-template-columns:repeat(9,1fr)}
+    .modal-body{grid-template-columns:1fr}
+    .overlay{padding:0}
+  }
 </style>
 </head>
 <body>
@@ -103,6 +131,7 @@
 
 <div class="layout">
   <aside id="filters">
+    <div class="drawer-head"><strong>Фильтры</strong><button class="x" id="drawer-close" aria-label="Закрыть">×</button></div>
     <input class="search" id="search" placeholder="Поиск по названию…" autocomplete="off">
 
     <h3>Источник</h3><div class="chips" id="f-source"></div>
@@ -120,10 +149,12 @@
     </div>
 
     <button class="reset" id="reset">Сбросить все фильтры</button>
+    <button class="drawer-apply" id="drawer-apply">Показать результаты</button>
   </aside>
 
   <main>
     <div class="toolbar">
+      <button class="filters-toggle" id="filters-toggle" aria-label="Открыть фильтры">☰ Фильтры</button>
       <div class="count" id="count"></div>
       <div class="row">
         <label class="src">Сортировка:</label>
@@ -139,6 +170,7 @@
     <button class="more" id="more" style="display:none">Показать ещё</button>
   </main>
 </div>
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
 
 <div class="overlay" id="overlay">
   <div class="modal">
@@ -193,7 +225,12 @@ function init(){
   $('#clr-colors').addEventListener('click', ()=>{F.color.clear();document.querySelectorAll('#f-color .sw').forEach(s=>s.classList.remove('on'));apply()});
   $('#m-close').addEventListener('click', closeModal);
   $('#overlay').addEventListener('click', e=>{if(e.target.id==='overlay')closeModal()});
-  document.addEventListener('keydown', e=>{if(e.key==='Escape')closeModal()});
+  document.addEventListener('keydown', e=>{if(e.key==='Escape'){closeModal();closeDrawer();}});
+  // выезжающее меню фильтров (моб.)
+  $('#filters-toggle').addEventListener('click', openDrawer);
+  $('#drawer-close').addEventListener('click', closeDrawer);
+  $('#drawer-apply').addEventListener('click', closeDrawer);
+  $('#drawer-backdrop').addEventListener('click', closeDrawer);
   apply();
 }
 
@@ -251,6 +288,18 @@ function render(append){
   slice.forEach(x=>grid.appendChild(card(x)));
   $('#count').innerHTML = `Найдено: <b>${FILTERED.length}</b> из ${META.total}`;
   $('#more').style.display = SHOWN<FILTERED.length ? 'block' : 'none';
+  $('#drawer-apply').textContent = `Показать результаты (${FILTERED.length})`;
+}
+
+function openDrawer(){
+  $('#filters').classList.add('open');
+  $('#drawer-backdrop').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(){
+  $('#filters').classList.remove('open');
+  $('#drawer-backdrop').classList.remove('on');
+  document.body.style.overflow='';
 }
 
 function card(x){
