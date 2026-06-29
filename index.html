@@ -344,8 +344,13 @@ function loadSpecs(x,btn){
     // онлайн (GitHub Pages) — тянем страницу источника через публичный CORS-прокси
     // и разбираем характеристики прямо в браузере
     fetchViaProxy(x.url)
-      .then(html=>cache(extractClient(x.source, html)))
-      .catch(e=>cache({error:'не удалось загрузить ('+e+')'}));
+      .then(html=>{
+        const r=extractClient(x.source, html);
+        if(!r.specs.length && !r.description)
+          r.error='источник не отдал характеристики через прокси. Откройте страницу на сайте-источнике (кнопка ниже).';
+        cache(r);
+      })
+      .catch(()=>cache({error:'характеристики временно недоступны (публичный прокси не отвечает). Откройте страницу на сайте-источнике — кнопка ниже.'}));
   }
 }
 
