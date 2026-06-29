@@ -97,8 +97,8 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 
-const ST = {type:'brus', orient:'h', finish:'мат', color:'Шоколад', hex:'#45322e',
-            postColor:'#3a3d40'};
+const ST = {type:'vert', orient:'v', finish:'дерево', color:'Оксидно-красный', hex:'#6e342f',
+            postColor:'#45322e'};
 const TYPES=[{id:'brus',n:'ЭкоБрус',o:'h'},{id:'log',n:'Блок-хаус',o:'h'},
              {id:'ship',n:'Корабельная доска',o:'h'},{id:'vert',n:'Вертикаль',o:'v'}];
 const POSTCOLORS=[['#3a3d40','графит'],['#1c1c1c','чёрный'],['#45322e','шоколад'],
@@ -106,19 +106,20 @@ const POSTCOLORS=[['#3a3d40','графит'],['#1c1c1c','чёрный'],['#45322
 
 // слоты-накладки: створки/калитка (сайдинг) и столбы (металл).
 // углы заданы долями (0..1) кадра; пользователь подгоняет под своё фото.
+// углы посажены под фото пользователя (1280×964); [tl,tr,bl,br] в долях кадра
 const SLOTS = {
-  gateL:{label:'Левая створка', kind:'siding', w:300,h:430, on:true,
-         c:[[.50,.34],[.70,.34],[.50,.86],[.70,.86]]},
-  gateR:{label:'Правая створка', kind:'siding', w:300,h:430, on:true,
-         c:[[.70,.34],[.90,.34],[.70,.86],[.90,.86]]},
-  wicket:{label:'Калитка', kind:'siding', w:220,h:440, on:false,
-         c:[[.30,.36],[.45,.36],[.30,.84],[.45,.84]]},
+  gateL:{label:'Ближняя створка', kind:'siding', w:300,h:430, on:true,
+         c:[[.6067,.1767],[.7805,.1810],[.5915,.7357],[.7673,.6848]]},
+  gateR:{label:'Дальняя створка', kind:'siding', w:300,h:430, on:true,
+         c:[[.8084,.1817],[1.000,.1899],[.7993,.6739],[1.000,.6287]]},
+  wicket:{label:'Калитка', kind:'siding', w:200,h:360, on:false,
+         c:[[.403,.446],[.547,.440],[.403,.788],[.547,.784]]},
   postL:{label:'Столб левый', kind:'post', w:80,h:460, on:true,
-         c:[[.475,.30],[.505,.30],[.475,.88],[.505,.88]]},
+         c:[[.5669,.2011],[.6069,.1938],[.5587,.7538],[.5944,.7447]]},
   postM:{label:'Столб средний', kind:'post', w:80,h:460, on:true,
-         c:[[.685,.30],[.715,.30],[.685,.88],[.715,.88]]},
-  postR:{label:'Столб правый', kind:'post', w:80,h:460, on:true,
-         c:[[.895,.30],[.925,.30],[.895,.88],[.925,.88]]},
+         c:[[.7812,.2045],[.8086,.2038],[.7654,.7006],[.7978,.6861]]},
+  postR:{label:'Столб правый', kind:'post', w:80,h:460, on:false,
+         c:[[.894,.178],[.922,.178],[.895,.668],[.923,.668]]},
 };
 let SHOW_HANDLES=true, IMG_READY=false, COLORS=[];
 
@@ -224,6 +225,7 @@ function renderOverlays(){
   stage.querySelectorAll('.warp,.handle').forEach(e=>e.remove());
   if(!IMG_READY||!img) return;
   const W=img.clientWidth, H=img.clientHeight;
+  if(!W||!H){requestAnimationFrame(renderOverlays);return;}
   // столбы рисуем первыми (за створками), сайдинг — поверх
   const order=Object.entries(SLOTS).sort((a,b)=> (a[1].kind==='post'?0:1)-(b[1].kind==='post'?0:1));
   order.forEach(([k,s])=>{
