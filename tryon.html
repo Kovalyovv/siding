@@ -42,6 +42,8 @@
   label.lbl{font-size:12px;color:var(--mut)}
   input[type=range]{accent-color:var(--accent);vertical-align:middle}
   .ghost{background:#fff;border:1px solid var(--line);color:var(--ink);padding:7px 12px;border-radius:7px;cursor:pointer;font-size:13px}
+  select,input.txt{padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:13px}
+  .pmsg{font-size:12px;color:var(--mut)}
 </style>
 </head>
 <body>
@@ -67,6 +69,23 @@
   <div class="panel slots">
     <h3>Что примеряем (вкл/выкл и перетащить углы)</h3>
     <div class="seg" id="slots"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Пресеты координат</h3>
+    <div class="row">
+      <input id="presetName" class="txt" placeholder="Название пресета" style="min-width:180px">
+      <button class="ghost" id="presetSave">Сохранить</button>
+      <select id="presetList" style="min-width:180px"></select>
+      <button class="ghost" id="presetLoad">Загрузить</button>
+      <button class="ghost" id="presetDelete">Удалить</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="ghost" id="presetExport">Экспорт в буфер</button>
+      <button class="ghost" id="presetImport">Импорт из буфера</button>
+      <button class="ghost" id="presetReset">Сбросить к исходным</button>
+      <span class="pmsg" id="presetMsg"></span>
+    </div>
   </div>
 
   <div class="grid2">
@@ -123,8 +142,52 @@ const SLOTS = {
 };
 let SHOW_HANDLES=true, IMG_READY=false, COLORS=[];
 
+// ---------- пресеты координат (localStorage) ----------
+const PK='siding_tryon_presets', LK='siding_tryon_last';
+function snapshot(){const s={};for(const k in SLOTS)s[k]={c:SLOTS[k].c.map(p=>[+p[0],+p[1]]),on:SLOTS[k].on};return {slots:s,st:{...ST}};}
+function applySnap(snap){if(!snap)return;for(const k in (snap.slots||{})){if(SLOTS[k]){if(snap.slots[k].c)SLOTS[k].c=snap.slots[k].c.map(p=>[+p[0],+p[1]]);if('on'in snap.slots[k])SLOTS[k].on=!!snap.slots[k].on;}}if(snap.st)Object.assign(ST,snap.st);}
+const INITIAL=JSON.stringify(snapshot()); // исходная калибровка под фото
+const getPresets=()=>{try{return JSON.parse(localStorage.getItem(PK))||{}}catch(e){return {}}};
+const setPresets=o=>{try{localStorage.setItem(PK,JSON.stringify(o))}catch(e){}};
+function saveLast(){try{localStorage.setItem(LK,JSON.stringify(snapshot()))}catch(e){}}
+function loadLast(){try{return JSON.parse(localStorage.getItem(LK))}catch(e){return null}}
+function pmsg(t){const e=document.getElementById('presetMsg');if(e){e.textContent=t;clearTimeout(pmsg._t);pmsg._t=setTimeout(()=>e.textContent='',2600);}}
+function refreshPresets(sel){const box=document.getElementById('presetList');if(!box)return;const o=getPresets();const cur=sel||box.value;box.innerHTML='';
+  Object.keys(o).forEach(n=>{const op=document.createElement('option');op.value=n;op.textContent=n;box.append(op);});
+  if(cur&&o[cur])box.value=cur;}
+function wirePresets(){
+  const name=document.getElementById('presetName');
+  document.getElementById('presetSave').onclick=()=>{
+    let n=(name.value||'').trim(); if(!n)n=(prompt('Название пресета:')||'').trim(); if(!n)return;
+    const o=getPresets(); o[n]=snapshot(); setPresets(o); refreshPresets(n); name.value=''; pmsg('Сохранено: '+n);
+  };
+  document.getElementById('presetLoad').onclick=()=>{
+    const n=document.getElementById('presetList').value; const o=getPresets();
+    if(!o[n]){pmsg('Нет сохранённых пресетов');return;} applySnap(o[n]); buildUI(); pmsg('Загружено: '+n);
+  };
+  document.getElementById('presetDelete').onclick=()=>{
+    const n=document.getElementById('presetList').value; const o=getPresets();
+    if(o[n]){delete o[n]; setPresets(o); refreshPresets(); pmsg('Удалено: '+n);}
+  };
+  document.getElementById('presetExport').onclick=async()=>{
+    const txt=JSON.stringify(getPresets(),null,0);
+    if(txt==='{}'){pmsg('Пресетов пока нет');return;}
+    try{await navigator.clipboard.writeText(txt); pmsg('Все пресеты скопированы в буфер');}
+    catch(e){prompt('Скопируйте JSON пресетов:',txt);}
+  };
+  document.getElementById('presetImport').onclick=async()=>{
+    let txt=''; try{txt=await navigator.clipboard.readText();}catch(e){}
+    if(!txt)txt=prompt('Вставьте JSON пресетов:')||'';
+    if(!txt)return;
+    try{const inc=JSON.parse(txt); const o=getPresets(); Object.assign(o,inc); setPresets(o); refreshPresets(); pmsg('Импортировано пресетов: '+Object.keys(inc).length);}
+    catch(e){pmsg('Не удалось разобрать JSON');}
+  };
+  document.getElementById('presetReset').onclick=()=>{applySnap(JSON.parse(INITIAL)); buildUI(); pmsg('Сброшено к исходной калибровке');};
+  refreshPresets();
+}
+
 // ---------- палитра ----------
-fetch('data.json').then(r=>r.json()).then(d=>{COLORS=d.meta.colors;buildUI();}).catch(()=>{COLORS=[{name:ST.color,hex:ST.hex}];buildUI();});
+fetch('data.json').then(r=>r.json()).then(d=>{COLORS=d.meta.colors;applySnap(loadLast());buildUI();wirePresets();}).catch(()=>{COLORS=[{name:ST.color,hex:ST.hex}];applySnap(loadLast());buildUI();wirePresets();});
 
 // автозагрузка gate.jpg, если положен в папку
 (function(){const im=new Image();im.onload=()=>setPhoto(im.src);im.onerror=()=>{};im.src='gate.jpg';})();
@@ -237,6 +300,7 @@ function renderOverlays(){
     stage.appendChild(div);
     if(SHOW_HANDLES) s.c.forEach((pt,idx)=>addHandle(stage,s,idx,W,H));
   });
+  saveLast();
 }
 function addHandle(stage,s,idx,W,H){
   const h=el('div','handle');
