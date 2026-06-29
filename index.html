@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Подбор металлического сайдинга — ворота и калитка</title>
+<style>
+  :root{
+    --bg:#f3f3f1; --panel:#fafafa; --card:#ffffff; --line:#dcdcd8;
+    --ink:#2b2b2b; --mut:#76746f; --accent:#54514b; --accent2:#6f6b64;
+    --chip:#eceae6; --chip-on:#54514b; --shadow:0 1px 3px rgba(0,0,0,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.45 -apple-system,Segoe UI,Roboto,Arial,sans-serif;
+       background:var(--bg);color:var(--ink)}
+  header{padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel);
+         position:sticky;top:0;z-index:20}
+  h1{margin:0;font-size:16px;font-weight:600}
+  .sub{color:var(--mut);font-size:12px;margin-top:2px}
+  .layout{display:flex;align-items:flex-start;gap:18px;padding:18px;max-width:1500px;margin:0 auto}
+  /* ---- sidebar ---- */
+  aside{width:260px;flex:0 0 260px;position:sticky;top:64px;
+        max-height:calc(100vh - 80px);overflow:auto;
+        background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
+  aside h3{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);
+           margin:16px 0 8px}
+  aside h3:first-child{margin-top:0}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{padding:5px 9px;border:1px solid var(--line);border-radius:14px;background:var(--chip);
+        cursor:pointer;font-size:12px;user-select:none}
+  .chip.on{background:var(--chip-on);color:#fff;border-color:var(--chip-on)}
+  .swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+  .sw{position:relative;aspect-ratio:1/1;border-radius:4px;border:1px solid rgba(0,0,0,.18);
+      cursor:pointer}
+  .sw.on{outline:2px solid var(--ink);outline-offset:1px}
+  .sw .tip{display:none}
+  .palette-label{display:flex;justify-content:space-between;align-items:center}
+  .mini{font-size:11px;color:var(--mut);background:none;border:none;cursor:pointer;text-decoration:underline}
+  .price-row{display:flex;gap:6px;align-items:center}
+  .price-row input{width:100%;padding:5px 6px;border:1px solid var(--line);border-radius:6px}
+  .search{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px}
+  .reset{margin-top:16px;width:100%;padding:8px;border:1px solid var(--line);background:#fff;
+         border-radius:6px;cursor:pointer}
+  /* ---- main ---- */
+  main{flex:1;min-width:0}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;
+           flex-wrap:wrap}
+  .count{color:var(--mut)}
+  .count b{color:var(--ink)}
+  select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;
+        display:flex;flex-direction:column;box-shadow:var(--shadow)}
+  .thumb{aspect-ratio:4/3;background:#eee;cursor:pointer;position:relative;overflow:hidden}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .badge-imgs{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.6);color:#fff;
+              font-size:11px;padding:1px 6px;border-radius:10px}
+  .meta{padding:10px;display:flex;flex-direction:column;gap:7px;flex:1}
+  .nm{font-size:12.5px;font-weight:500;line-height:1.35}
+  .row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .dot{width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.2);flex:0 0 auto}
+  .tag{font-size:11px;color:var(--mut);background:var(--chip);padding:1px 7px;border-radius:10px}
+  .src{font-size:11px;color:var(--mut)}
+  .price{font-weight:600}
+  .price small{font-weight:400;color:var(--mut)}
+  .btns{display:flex;gap:6px;margin-top:auto;padding:10px;border-top:1px solid var(--line)}
+  .btn{flex:1;text-align:center;padding:7px 6px;border:1px solid var(--line);border-radius:6px;
+       background:#fff;cursor:pointer;font-size:12px;color:var(--ink);text-decoration:none}
+  .btn:hover{background:#f0efec}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.primary:hover{background:#403d39}
+  .more{margin:18px auto;display:block;padding:10px 24px;border:1px solid var(--line);
+        background:#fff;border-radius:6px;cursor:pointer}
+  /* ---- modal ---- */
+  .overlay{position:fixed;inset:0;background:rgba(20,20,20,.55);display:none;z-index:50;
+           padding:20px;overflow:auto}
+  .overlay.on{display:flex;align-items:flex-start;justify-content:center}
+  .modal{background:#fff;border-radius:10px;max-width:880px;width:100%;margin:auto;overflow:hidden}
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+              padding:16px 18px;border-bottom:1px solid var(--line)}
+  .modal-head h2{font-size:15px;margin:0;font-weight:600}
+  .x{border:none;background:none;font-size:22px;cursor:pointer;color:var(--mut);line-height:1}
+  .modal-body{padding:16px 18px;display:grid;grid-template-columns:340px 1fr;gap:18px}
+  .gallery .main{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:#eee}
+  .gthumbs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .gthumbs img{width:54px;height:42px;object-fit:cover;border-radius:4px;cursor:pointer;
+               border:1px solid var(--line)}
+  .gthumbs img.on{outline:2px solid var(--ink)}
+  .spectable{width:100%;border-collapse:collapse;font-size:13px}
+  .spectable td{padding:6px 8px;border-bottom:1px solid #eee;vertical-align:top}
+  .spectable td:first-child{color:var(--mut);width:46%}
+  .desc{font-size:13px;color:#3a3a3a;white-space:pre-line;margin-bottom:12px}
+  .loading{color:var(--mut);padding:12px 0}
+  @media(max-width:900px){.layout{flex-direction:column}aside{width:100%;flex:none;position:static;max-height:none}
+    .modal-body{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Подбор металлического сайдинга для ворот и калитки</h1>
+  <div class="sub" id="subtitle">Загрузка каталога…</div>
+</header>
+
+<div class="layout">
+  <aside id="filters">
+    <input class="search" id="search" placeholder="Поиск по названию…" autocomplete="off">
+
+    <h3>Источник</h3><div class="chips" id="f-source"></div>
+    <h3>Тип профиля</h3><div class="chips" id="f-type"></div>
+    <h3>Поверхность</h3><div class="chips" id="f-finish"></div>
+
+    <div class="palette-label"><h3>Цвет</h3><button class="mini" id="clr-colors">сбросить</button></div>
+    <div class="swatches" id="f-color"></div>
+
+    <h3>Цена, ₽/м² (только Grandline)</h3>
+    <div class="price-row">
+      <input id="p-min" type="number" placeholder="от" inputmode="numeric">
+      <span>—</span>
+      <input id="p-max" type="number" placeholder="до" inputmode="numeric">
+    </div>
+
+    <button class="reset" id="reset">Сбросить все фильтры</button>
+  </aside>
+
+  <main>
+    <div class="toolbar">
+      <div class="count" id="count"></div>
+      <div class="row">
+        <label class="src">Сортировка:</label>
+        <select id="sort">
+          <option value="rel">по умолчанию</option>
+          <option value="price-asc">цена ↑</option>
+          <option value="price-desc">цена ↓</option>
+          <option value="color">по цвету</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <button class="more" id="more" style="display:none">Показать ещё</button>
+  </main>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="m-title"></h2>
+      <button class="x" id="m-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="gallery">
+        <img class="main" id="m-main" alt="">
+        <div class="gthumbs" id="m-thumbs"></div>
+      </div>
+      <div>
+        <div class="row" style="margin-bottom:10px">
+          <span class="dot" id="m-dot"></span><span id="m-color"></span>
+          <span class="tag" id="m-finish"></span><span class="price" id="m-price"></span>
+        </div>
+        <div class="desc" id="m-desc"></div>
+        <div id="m-specs"></div>
+        <a class="btn primary" id="m-src" target="_blank" rel="noopener"
+           style="display:inline-block;margin-top:10px;flex:none;padding:8px 16px">Открыть на сайте-источнике →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SRC_LABEL = {grandline:"Grandline", mirkrovli:"Мир Кровли"};
+let DATA=[], META=null, F={source:new Set(),type:new Set(),finish:new Set(),
+    color:new Set(),pmin:null,pmax:null,q:""}, SHOWN=0, PAGE=60, FILTERED=[];
+
+const $=s=>document.querySelector(s), ce=(t,c)=>{const e=document.createElement(t);if(c)e.className=c;return e};
+
+fetch('data.json').then(r=>r.json()).then(d=>{
+  DATA=d.items; META=d.meta; init();
+});
+
+function init(){
+  $('#subtitle').textContent =
+    `${META.total} вариантов · ${META.types.length} типов профиля · ${META.colors.length} цветов · цена ${META.price_min}–${META.price_max} ₽/м²`;
+  buildChips('f-source', META.sources, 'source', s=>SRC_LABEL[s]||s);
+  buildChips('f-type', META.types, 'type');
+  buildChips('f-finish', META.finishes, 'finish');
+  buildSwatches();
+  // events
+  $('#search').addEventListener('input', e=>{F.q=e.target.value.trim().toLowerCase();apply()});
+  $('#p-min').addEventListener('input', e=>{F.pmin=e.target.value?+e.target.value:null;apply()});
+  $('#p-max').addEventListener('input', e=>{F.pmax=e.target.value?+e.target.value:null;apply()});
+  $('#sort').addEventListener('change', apply);
+  $('#more').addEventListener('click', ()=>{SHOWN+=PAGE;render(true)});
+  $('#reset').addEventListener('click', resetAll);
+  $('#clr-colors').addEventListener('click', ()=>{F.color.clear();document.querySelectorAll('#f-color .sw').forEach(s=>s.classList.remove('on'));apply()});
+  $('#m-close').addEventListener('click', closeModal);
+  $('#overlay').addEventListener('click', e=>{if(e.target.id==='overlay')closeModal()});
+  document.addEventListener('keydown', e=>{if(e.key==='Escape')closeModal()});
+  apply();
+}
+
+function buildChips(id, values, key, label){
+  const box=$('#'+id);
+  values.forEach(v=>{
+    const c=ce('div','chip'); c.textContent=label?label(v):v;
+    c.onclick=()=>{c.classList.toggle('on');
+      F[key].has(v)?F[key].delete(v):F[key].add(v); apply();};
+    box.appendChild(c);
+  });
+}
+
+function buildSwatches(){
+  const box=$('#f-color');
+  META.colors.forEach(c=>{
+    const s=ce('div','sw'); s.style.background=c.hex;
+    s.title=`${c.name} (${c.count})`;
+    s.onclick=()=>{s.classList.toggle('on');
+      F.color.has(c.name)?F.color.delete(c.name):F.color.add(c.name); apply();};
+    box.appendChild(s);
+  });
+}
+
+function match(x){
+  if(F.source.size && !F.source.has(x.source)) return false;
+  if(F.type.size && !F.type.has(x.type)) return false;
+  if(F.finish.size && !F.finish.has(x.finish)) return false;
+  if(F.color.size && !F.color.has(x.color)) return false;
+  if(F.q && !x.name.toLowerCase().includes(F.q)) return false;
+  if(F.pmin!=null || F.pmax!=null){
+    const p = x.price && /^\d+$/.test(x.price) ? +x.price : null;
+    if(p==null) return false;
+    if(F.pmin!=null && p<F.pmin) return false;
+    if(F.pmax!=null && p>F.pmax) return false;
+  }
+  return true;
+}
+
+function apply(){
+  FILTERED = DATA.filter(match);
+  const sort=$('#sort').value;
+  const pv=x=>x.price&&/^\d+$/.test(x.price)?+x.price:null;
+  if(sort==='price-asc') FILTERED.sort((a,b)=>(pv(a)??1e9)-(pv(b)??1e9));
+  else if(sort==='price-desc') FILTERED.sort((a,b)=>(pv(b)??-1)-(pv(a)??-1));
+  else if(sort==='color') FILTERED.sort((a,b)=>a.color.localeCompare(b.color,'ru'));
+  SHOWN=PAGE; render(false);
+}
+
+function render(append){
+  const grid=$('#grid');
+  if(!append) grid.innerHTML='';
+  const start=append?grid.children.length:0;
+  const slice=FILTERED.slice(start, SHOWN);
+  slice.forEach(x=>grid.appendChild(card(x)));
+  $('#count').innerHTML = `Найдено: <b>${FILTERED.length}</b> из ${META.total}`;
+  $('#more').style.display = SHOWN<FILTERED.length ? 'block' : 'none';
+}
+
+function card(x){
+  const el=ce('div','item');
+  const th=ce('div','thumb');
+  const img=ce('img'); img.loading='lazy'; img.src=x.image; img.alt=x.name;
+  img.onerror=()=>{th.style.background='#e6e6e3';img.remove()};
+  th.appendChild(img);
+  if(x.images && x.images.length>1){const b=ce('span','badge-imgs');b.textContent='📷 '+x.images.length;th.appendChild(b)}
+  th.onclick=()=>openModal(x);
+  el.appendChild(th);
+
+  const m=ce('div','meta');
+  const nm=ce('div','nm'); nm.textContent=x.name; m.appendChild(nm);
+  const r1=ce('div','row');
+  const dot=ce('span','dot'); dot.style.background=x.hex; dot.title=x.color;
+  const cl=ce('span'); cl.textContent=x.color; cl.style.fontSize='12px';
+  r1.append(dot,cl); m.appendChild(r1);
+  const r2=ce('div','row');
+  const tg=ce('span','tag'); tg.textContent=x.finish; r2.appendChild(tg);
+  if(x.film) {const f=ce('span','tag');f.textContent='с плёнкой';r2.appendChild(f)}
+  m.appendChild(r2);
+  const r3=ce('div','row');
+  const src=ce('span','src'); src.textContent=SRC_LABEL[x.source]||x.source;
+  r3.appendChild(src);
+  if(x.price && /^\d+$/.test(x.price)){const p=ce('span','price');p.innerHTML=(+x.price).toLocaleString('ru')+' <small>₽/м²</small>';r3.appendChild(p)}
+  m.appendChild(r3);
+  el.appendChild(m);
+
+  const b=ce('div','btns');
+  const a=ce('a','btn'); a.href=x.url; a.target='_blank'; a.rel='noopener'; a.textContent='Источник ↗';
+  const sp=ce('button','btn primary'); sp.textContent='Характеристики';
+  sp.onclick=()=>openModal(x,true);
+  b.append(a,sp); el.appendChild(b);
+  return el;
+}
+
+// ---------- modal ----------
+let CUR=null;
+function openModal(x, focusSpecs){
+  CUR=x;
+  $('#m-title').textContent=x.name;
+  $('#m-dot').style.background=x.hex;
+  $('#m-color').textContent=x.color;
+  $('#m-finish').textContent=x.finish+(x.film?' · с плёнкой':'');
+  $('#m-price').textContent = (x.price&&/^\d+$/.test(x.price))?'  '+(+x.price).toLocaleString('ru')+' ₽/м²':'';
+  $('#m-src').href=x.url;
+  // gallery
+  const imgs = (x.images&&x.images.length)?x.images:[x.image];
+  setMain(imgs[0]);
+  const tb=$('#m-thumbs'); tb.innerHTML='';
+  imgs.forEach((u,i)=>{const t=ce('img');t.src=u;if(i===0)t.classList.add('on');
+    t.onclick=()=>{setMain(u);tb.querySelectorAll('img').forEach(z=>z.classList.remove('on'));t.classList.add('on')};
+    t.onerror=()=>t.remove(); tb.appendChild(t)});
+  $('#m-desc').textContent='';
+  $('#m-specs').innerHTML='<div class="loading">Нажмите «Загрузить характеристики», чтобы подтянуть данные с источника.</div>';
+  const btn=ce('button','btn primary'); btn.textContent='Загрузить характеристики';
+  btn.style.flex='none'; btn.style.padding='8px 16px';
+  btn.onclick=()=>loadSpecs(x,btn);
+  $('#m-specs').innerHTML=''; $('#m-specs').appendChild(btn);
+  $('#overlay').classList.add('on');
+  if(focusSpecs) loadSpecs(x,btn);
+}
+function setMain(u){const m=$('#m-main');m.src=u;m.onerror=()=>m.style.visibility='hidden';m.onload=()=>m.style.visibility='visible'}
+function closeModal(){$('#overlay').classList.remove('on')}
+
+const SPEC_CACHE={};
+function loadSpecs(x,btn){
+  $('#m-specs').innerHTML='<div class="loading">Загружаю с '+(SRC_LABEL[x.source]||x.source)+'…</div>';
+  const done=res=>{
+    if(!CUR||CUR.url!==x.url) return;
+    if(res.error){$('#m-specs').innerHTML='<div class="loading">Не удалось загрузить: '+res.error+'</div>';return}
+    if(res.description) $('#m-desc').textContent=res.description;
+    if(res.specs && res.specs.length){
+      const t=ce('table','spectable');
+      res.specs.forEach(s=>{const tr=ce('tr');const a=ce('td');a.textContent=s.name;
+        const b=ce('td');b.textContent=s.value;tr.append(a,b);t.appendChild(tr)});
+      $('#m-specs').innerHTML=''; $('#m-specs').appendChild(t);
+    } else if(!res.description){
+      $('#m-specs').innerHTML='<div class="loading">Характеристики не найдены на странице источника.</div>';
+    } else $('#m-specs').innerHTML='';
+  };
+  if(SPEC_CACHE[x.url]){done(SPEC_CACHE[x.url]);return}
+  const cache=res=>{SPEC_CACHE[x.url]=res;done(res)};
+  const isLocal=['localhost','127.0.0.1'].includes(location.hostname);
+  if(isLocal){
+    // локально — через наш Python-сервер (прокси /api/specs)
+    fetch('/api/specs?url='+encodeURIComponent(x.url))
+      .then(r=>r.json()).then(cache).catch(e=>cache({error:String(e)}));
+  } else {
+    // онлайн (GitHub Pages) — тянем страницу источника через публичный CORS-прокси
+    // и разбираем характеристики прямо в браузере
+    fetchViaProxy(x.url)
+      .then(html=>cache(extractClient(x.source, html)))
+      .catch(e=>cache({error:'не удалось загрузить ('+e+')'}));
+  }
+}
+
+// несколько публичных CORS-прокси по очереди (на случай недоступности одного)
+function fetchViaProxy(url){
+  const proxies=[
+    u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+    u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
+    u=>'https://thingproxy.freeboard.io/fetch/'+u,
+  ];
+  let i=0;
+  const tryNext=()=>{
+    if(i>=proxies.length) return Promise.reject('все прокси недоступны');
+    const p=proxies[i++];
+    return fetch(p(url)).then(r=>{if(!r.ok)throw 0;return r.text()})
+      .then(t=>{if(!t||t.length<500)throw 0;return t})
+      .catch(()=>tryNext());
+  };
+  return tryNext();
+}
+
+// --- клиентский разбор страницы источника (порт логики server.py) ---
+function cleanHtml(t){
+  t=t.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'');
+  t=t.replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&quot;/g,'"')
+     .replace(/&#8381;/g,'₽').replace(/&laquo;/g,'«').replace(/&raquo;/g,'»')
+     .replace(/&mdash;/g,'—').replace(/&deg;/g,'°');
+  return t.replace(/[ \t]+/g,' ').trim();
+}
+function extractClient(source, s){
+  if(source==='grandline'){
+    const specs=[], seen=new Set();
+    const re=/specification-item__title[^>]*>([\s\S]*?)<\/[^>]+>\s*<[^>]*specification-item__value[^>]*>([\s\S]*?)<\//g;
+    let m; while((m=re.exec(s))){
+      const n=cleanHtml(m[1]).replace(/:$/,''), v=cleanHtml(m[2]);
+      if(n&&v&&!seen.has(n)){seen.add(n);specs.push({name:n,value:v});}
+    }
+    let desc='';
+    let d=s.match(/product-description-tab__content[^>]*>([\s\S]*?)<\/div>\s*<\/div>/)
+        || s.match(/product-description-tab__content[^>]*>([\s\S]*?)<\/div>/);
+    if(d){desc=cleanHtml(d[1]).split(/\bХарактеристики\b|Показать все характеристики/)[0].trim();}
+    if(!desc){const mm=s.match(/itemprop="description"[^>]*content="([^"]+)"/);if(mm)desc=cleanHtml(mm[1]);}
+    return {description:desc, specs};
+  } else {
+    const specs=[];
+    const re=/<tr>\s*<td[^>]*data-id="\d+"[^>]*>([\s\S]*?)<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<\/tr>/g;
+    let m; while((m=re.exec(s))){
+      const n=cleanHtml(m[1]), v=cleanHtml(m[2]);
+      if(n&&v)specs.push({name:n,value:v});
+    }
+    let desc='';
+    const d=s.match(/class="[^"]*\bdescription\b[^"]*"[^>]*>([\s\S]*?)<\/div>/);
+    if(d)desc=cleanHtml(d[1]).replace('Подробности','').trim();
+    return {description:desc, specs};
+  }
+}
+
+function resetAll(){
+  F={source:new Set(),type:new Set(),finish:new Set(),color:new Set(),pmin:null,pmax:null,q:""};
+  document.querySelectorAll('.chip.on,.sw.on').forEach(e=>e.classList.remove('on'));
+  $('#search').value=''; $('#p-min').value=''; $('#p-max').value=''; $('#sort').value='rel';
+  apply();
+}
+</script>
+</body>
+</html>

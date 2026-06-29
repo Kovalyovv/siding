@@ -1,0 +1,17 @@
+# кэши краулеров и офлайн-копии страниц
+live_p*.html
+gl_p*.html
+gl_detail.html
+mk_detail.html
+mk_resp.json
+galleries.json
+*.log
+
+# исходная сохранённая страница-источник (большая, не нужна для сайта)
+Металлический сайдинг*.html
+Металлический сайдинг*_files/
+
+# локальное
+.claude/
+.DS_Store
+__pycache__/
