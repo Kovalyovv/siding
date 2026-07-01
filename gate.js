@@ -64,7 +64,7 @@ function panel(id, x, y, w, h, st){
       ${lin(gid, PROFILE[st.type], st.orient==='v')}
       <clipPath id="${clip}"><rect x="${ix}" y="${iy}" width="${iw}" height="${ih}"/></clipPath>
     </defs>
-    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#eceae3"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${st.frame||'#eceae3'}"/>
     <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="url(#frame)"/>
     <g clip-path="url(#${clip})">${inner}</g>
     <rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" fill="none" stroke="#000" stroke-opacity=".18"/>`;

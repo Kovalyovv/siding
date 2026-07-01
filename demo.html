@@ -78,6 +78,11 @@
     <div class="swatches" id="colors"></div>
   </div>
 
+  <div class="panel">
+    <h3>Цвет каркаса (металлическая рама, на которую крепится сайдинг)</h3>
+    <div class="swatches" id="frames"></div>
+  </div>
+
   <div class="hint">
     Это процедурная визуализация: профиль досок, блик и фактура рисуются программно
     и перекрашиваются в выбранный цвет — точный оттенок и рельеф у реального металла
@@ -86,10 +91,14 @@
   </div>
 </div>
 
-<script src="gate.js?v=3"></script>
+<script src="gate.js?v=4"></script>
 <script>
 // ---------- состояние ----------
-const STATE = {type:'brus', orient:'h', finish:'мат', color:'Шоколад', hex:'#45322e', brick:'beige'};
+const STATE = {type:'brus', orient:'h', finish:'мат', color:'Шоколад', hex:'#45322e',
+               brick:'beige', frame:'#e9e7e1'};
+// быстрые «металлические» варианты каркаса (идут первыми в палитре рамы)
+const FRAME_PRESETS = [['#e9e7e1','белый'],['#c9ccce','светлый металл'],['#8d8f90','серый'],
+                       ['#54514b','тёмно-серый'],['#3a3d40','графит'],['#1c1c1c','чёрный']];
 
 const TYPES = [
   {id:'brus', name:'ЭкоБрус', orient:'h'},
@@ -138,6 +147,12 @@ function buildControls(){
   const c=$('#colors'); c.innerHTML='';
   COLORS.forEach(col=>{const e=el('div','sw');e.style.background=col.hex;e.title=col.name;
     e.onclick=()=>{STATE.color=col.name;STATE.hex=col.hex;sync();render()};e.dataset.col=col.name;c.append(e)});
+  // цвет каркаса: сначала «металлические» пресеты, затем вся палитра
+  const fr=$('#frames'); fr.innerHTML='';
+  const addFrame=(hex,name)=>{const e=el('div','sw');e.style.background=hex;e.title=name;
+    e.onclick=()=>{STATE.frame=hex;sync();render()};e.dataset.frame=hex;fr.append(e)};
+  FRAME_PRESETS.forEach(([hex,name])=>addFrame(hex,'Каркас: '+name));
+  COLORS.forEach(col=>addFrame(col.hex,'Каркас: '+col.name));
   // пресеты
   const p=$('#presets'); p.innerHTML='';
   PRESETS.forEach(pr=>{const e=el('div','preset');
@@ -153,8 +168,10 @@ function sync(){
   $$('#bricks .opt').forEach(e=>e.classList.toggle('on',e.dataset.k==='brick:'+STATE.brick));
   $$('#orients .opt').forEach(e=>e.classList.toggle('on',e.dataset.k==='orient:'+STATE.orient));
   $$('#colors .sw').forEach(e=>e.classList.toggle('on',e.dataset.col===STATE.color));
+  $$('#frames .sw').forEach(e=>e.classList.toggle('on',e.dataset.frame===STATE.frame));
   $('#now').innerHTML='<span class="dot" style="background:'+STATE.hex+'"></span>'+
-    '<b style="color:#2b2b2b">'+(TYPES.find(t=>t.id===STATE.type).name)+'</b> · '+STATE.color+' · '+STATE.finish;
+    '<b style="color:#2b2b2b">'+(TYPES.find(t=>t.id===STATE.type).name)+'</b> · '+STATE.color+' · '+STATE.finish+
+    ' · <span class="dot" style="background:'+STATE.frame+'"></span>каркас';
 }
 
 // ================= ОТРИСОВКА СЦЕНЫ (SVG) =================
